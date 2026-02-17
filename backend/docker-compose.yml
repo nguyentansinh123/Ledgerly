@@ -1,0 +1,18 @@
+services:
+  mysql:
+    container_name: LedgerDatabase
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Sinhlol123
+      MYSQL_DATABASE: spring_app_db
+      MYSQL_USER: ledger_user
+      MYSQL_PASSWORD: Sinhlol123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306" 
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+volumes:
+  mysql_data:
+  
