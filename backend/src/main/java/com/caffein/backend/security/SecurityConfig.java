@@ -28,7 +28,9 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
 
     public static final String[] PUBLIC_URLS = {
-
+            "/api/v1/auth/login",
+            "/api/v1/auth/register",
+            "/api/v1/auth/refresh"
     };
 
     @Bean
@@ -43,7 +45,6 @@ public class SecurityConfig {
                         .authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(this.jwtValidator, UsernamePasswordAuthenticationFilter.class)
-
                 .build();
     }
 
