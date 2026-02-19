@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
-import javax.swing.Spring;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtService {
 
-  private static SecretKey key = Keys.hmacShaKeyFor(JwtConstant.JWT_SECRET.getBytes());
+  @Value("${app.security.jwt.secret}")
+  private String jwtSecret;
+  
   private static final String TOKEN_TYPE = "token_type";
 
   @Value("${app.security.jwt.access-token-expiration}")
@@ -26,6 +27,10 @@ public class JwtService {
 
   @Value("${app.security.jwt.refresh-token-expiration}")
   private Long refreshTokenExpiration;
+
+  private SecretKey getKey() {
+    return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+  }
 
   public String generateAccessToken(String username) {
     Map<String, Object> claims = Map.of(TOKEN_TYPE, "ACCESS_TOKEN");
@@ -42,8 +47,8 @@ public class JwtService {
         .claims(claims)
         .subject(username)
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() * expiredTime))
-        .signWith(key)
+        .expiration(new Date(System.currentTimeMillis() + expiredTime)) 
+        .signWith(getKey())
         .compact();
   }
 
@@ -55,14 +60,13 @@ public class JwtService {
     try {
       return Jwts
           .parser()
-          .verifyWith(key)
+          .verifyWith(getKey())
           .build()
           .parseSignedClaims(token)
           .getPayload();
     } catch (Exception e) {
       throw new RuntimeException("Invalid Jwt Token ", e);
     }
-
   }
 
   public boolean isTokenValid(String token, String expectedUsername) {
@@ -75,7 +79,6 @@ public class JwtService {
   }
 
   public String refreshAccessToken(String refreshToken) {
-
     Claims claims = extractClaims(refreshToken);
     if (!"REFRESH_TOKEN".equals(claims.get(TOKEN_TYPE))) {
       throw new RuntimeException("Invalid token type");
@@ -87,7 +90,5 @@ public class JwtService {
 
     String username = claims.getSubject();
     return generateAccessToken(username);
-
   }
-
 }
