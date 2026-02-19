@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.caffein.backend.models.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<String, User>{
+public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByEmailIgnoreCase(String email);
 
     Optional<User> findByEmailIgnoreCase(String email);

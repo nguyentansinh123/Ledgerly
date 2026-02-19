@@ -9,6 +9,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
-public interface RoleRepository extends JpaRepository<String, Role>{
+public interface RoleRepository extends JpaRepository<Role, String> {
     Optional<Role> findByName(String string);
 }
